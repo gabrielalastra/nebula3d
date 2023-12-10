@@ -88,11 +88,15 @@ def get_brand_name(soup):
 # Function to extract Item Weight
 def get_item_weight(soup):
     try:
+        # First, try to find the label directly
         weight_label = soup.find("span", class_="a-size-base a-text-bold", string="Item weight")
+
         if weight_label:
             item_weight = weight_label.find_next("span", class_="a-size-base po-break-word").text.strip()
         else:
-            item_weight = ""
+            # If not found, try to find the weight within the td tag directly
+            item_weight = soup.find("td", class_="a-size-base prodDetAttrValue").text.strip()
+
     except AttributeError:
         item_weight = ""
 
