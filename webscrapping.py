@@ -146,7 +146,7 @@ for i in range(1):
         d["material"].append(get_material(new_soup))
         d["color"].append(get_color(new_soup))
         d["item weight"].append(get_item_weight(new_soup))
-        d["link"].append(webpage)
+        d["link"].append("https://www.amazon.in" + link)
 
         i +=1
     URL=soup.select_one('.s-pagination-item.s-pagination-next')['href']
