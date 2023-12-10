@@ -163,6 +163,7 @@ def get_data():
 
 # Drop rows with null elements in the "title" column
 df = df.dropna(subset=['title'])
+
 # Keep only the first 3 digits in the "review" column
 df['review'] = df['review'].apply(lambda x: str(x)[:3] if pd.notnull(x) else x)
 
