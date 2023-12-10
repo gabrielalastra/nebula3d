@@ -111,49 +111,48 @@ def get_color(soup):
 
     return color
 
-#display
-d = {"title": [], "brand":[], 
-    "material": [], "review": [], 
-    "price": [], "item weight":[], "color":[], "link":[]}
+def get_data():
+    #display
+    d = {"title": [], "brand":[], 
+        "material": [], "review": [], 
+        "price": [], "item weight":[], "color":[], "link":[]}
 
-for i in range(1):
-        
-    links = soup.find_all("a", attrs={'class':'a-link-normal s-no-outline'})
+    for i in range(1):
+            
+        links = soup.find_all("a", attrs={'class':'a-link-normal s-no-outline'})
 
-        # Store the links
-    links_list = []
+            # Store the links
+        links_list = []
 
-        # Loop for extracting links from Tag Objects
-    for link in links:
-            links_list.append(link.get('href'))
+            # Loop for extracting links from Tag Objects
+        for link in links:
+                links_list.append(link.get('href'))
 
-    # Loop for extracting product details from each link 
-    i= 1
-    for link in links_list:
-        # Adding a delay between each request
-        print(i,len(links_list))
-        delay = random.uniform(1, 3)
-        time.sleep(delay)
-        new_webpage = requests.get("https://www.amazon.in" + link, headers=HEADERS)
+        # Loop for extracting product details from each link 
+        i= 1
+        for link in links_list:
+            # Adding a delay between each request
+            print(i,len(links_list))
+            delay = random.uniform(1, 3)
+            time.sleep(delay)
+            new_webpage = requests.get("https://www.amazon.in" + link, headers=HEADERS)
 
-        new_soup = BeautifulSoup(new_webpage.content, "html.parser")
+            new_soup = BeautifulSoup(new_webpage.content, "html.parser")
 
-        # Function calls to display all necessary product information
-        d['title'].append(get_title(new_soup))
-        d["review"].append(get_rating(new_soup))
-        d["price"].append(get_price(new_soup))
-        d["brand"].append(get_brand_name(new_soup))
-        d["material"].append(get_material(new_soup))
-        d["color"].append(get_color(new_soup))
-        d["item weight"].append(get_item_weight(new_soup))
-        d["link"].append("https://www.amazon.in" + link)
+            # Function calls to display all necessary product information
+            d['title'].append(get_title(new_soup))
+            d["review"].append(get_rating(new_soup))
+            d["price"].append(get_price(new_soup))
+            d["brand"].append(get_brand_name(new_soup))
+            d["material"].append(get_material(new_soup))
+            d["color"].append(get_color(new_soup))
+            d["item weight"].append(get_item_weight(new_soup))
+            d["link"].append("https://www.amazon.in" + link)
 
-        i +=1
-    URL=soup.select_one('.s-pagination-item.s-pagination-next')['href']
-    webpage = requests.get("https://www.amazon.in" + URL, headers=HEADERS)
-    soup = BeautifulSoup(webpage.content, "html.parser")
+            i +=1
+        URL=soup.select_one('.s-pagination-item.s-pagination-next')['href']
+        webpage = requests.get("https://www.amazon.in" + URL, headers=HEADERS)
+        soup = BeautifulSoup(webpage.content, "html.parser")
 
-
-len(d)
-
-df=pd.DataFrame(d)
+    df=pd.DataFrame(d)
+    return df
