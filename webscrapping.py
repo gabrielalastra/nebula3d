@@ -88,11 +88,15 @@ def get_brand_name(soup):
 # Function to extract Item Weight
 def get_item_weight(soup):
     try:
+        # First, try to find the label directly
         weight_label = soup.find("span", class_="a-size-base a-text-bold", string="Item weight")
+
         if weight_label:
             item_weight = weight_label.find_next("span", class_="a-size-base po-break-word").text.strip()
         else:
-            item_weight = ""
+            # If not found, try to find the weight within the td tag directly
+            item_weight = soup.find("td", class_="a-size-base prodDetAttrValue").text.strip()
+
     except AttributeError:
         item_weight = ""
 
@@ -111,49 +115,63 @@ def get_color(soup):
 
     return color
 
-#display
-d = {"title": [], "brand":[], 
-    "material": [], "review": [], 
-    "price": [], "item weight":[], "color":[], "link":[]}
+def get_data():
+    #display
+    d = {"title": [], "brand":[], 
+        "material": [], "review": [], 
+        "price": [], "item weight":[], "color":[], "link":[]}
 
-for i in range(1):
-        
-    links = soup.find_all("a", attrs={'class':'a-link-normal s-no-outline'})
+    for i in range(1):
+            
+        links = soup.find_all("a", attrs={'class':'a-link-normal s-no-outline'})
 
-        # Store the links
-    links_list = []
+            # Store the links
+        links_list = []
 
-        # Loop for extracting links from Tag Objects
-    for link in links:
-            links_list.append(link.get('href'))
+            # Loop for extracting links from Tag Objects
+        for link in links:
+                links_list.append(link.get('href'))
 
-    # Loop for extracting product details from each link 
-    i= 1
-    for link in links_list:
-        # Adding a delay between each request
-        print(i,len(links_list))
-        delay = random.uniform(1, 3)
-        time.sleep(delay)
-        new_webpage = requests.get("https://www.amazon.in" + link, headers=HEADERS)
+        # Loop for extracting product details from each link 
+        i= 1
+        for link in links_list:
+            # Adding a delay between each request
+            print(i,len(links_list))
+            delay = random.uniform(1, 3)
+            time.sleep(delay)
+            new_webpage = requests.get("https://www.amazon.in" + link, headers=HEADERS)
 
-        new_soup = BeautifulSoup(new_webpage.content, "html.parser")
+            new_soup = BeautifulSoup(new_webpage.content, "html.parser")
 
-        # Function calls to display all necessary product information
-        d['title'].append(get_title(new_soup))
-        d["review"].append(get_rating(new_soup))
-        d["price"].append(get_price(new_soup))
-        d["brand"].append(get_brand_name(new_soup))
-        d["material"].append(get_material(new_soup))
-        d["color"].append(get_color(new_soup))
-        d["item weight"].append(get_item_weight(new_soup))
-        d["link"].append("https://www.amazon.in" + link)
+            # Function calls to display all necessary product information
+            d['title'].append(get_title(new_soup))
+            d["review"].append(get_rating(new_soup))
+            d["price"].append(get_price(new_soup))
+            d["brand"].append(get_brand_name(new_soup))
+            d["material"].append(get_material(new_soup))
+            d["color"].append(get_color(new_soup))
+            d["item weight"].append(get_item_weight(new_soup))
+            d["link"].append("https://www.amazon.in" + link)
 
-        i +=1
-    URL=soup.select_one('.s-pagination-item.s-pagination-next')['href']
-    webpage = requests.get("https://www.amazon.in" + URL, headers=HEADERS)
-    soup = BeautifulSoup(webpage.content, "html.parser")
+            i +=1
+        URL=soup.select_one('.s-pagination-item.s-pagination-next')['href']
+        webpage = requests.get("https://www.amazon.in" + URL, headers=HEADERS)
+        soup = BeautifulSoup(webpage.content, "html.parser")
+
+    df=pd.DataFrame(d)
+    return df.head()
+
+# Drop rows with null elements in the "title" column
+df = df.dropna(subset=['title'])
+
+# Keep only the first 3 digits in the "review" column
+df['review'] = df['review'].apply(lambda x: str(x)[:3] if pd.notnull(x) else x)
+
+# Convert the "review" column to numeric type
+df['review'] = pd.to_numeric(df['review'], errors='coerce')
+
+# Sort DataFrame by the "review" column
+df.sort_values(by='review', ascending=False, inplace=True)
 
 
-len(d)
-
-df=pd.DataFrame(d)
+    
