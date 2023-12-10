@@ -155,4 +155,18 @@ def get_data():
         soup = BeautifulSoup(webpage.content, "html.parser")
 
     df=pd.DataFrame(d)
-    return df
+    return df.head()
+
+# Drop rows with null elements in the "title" column
+df = df.dropna(subset=['title'])
+# Keep only the first 3 digits in the "review" column
+df['review'] = df['review'].apply(lambda x: str(x)[:3] if pd.notnull(x) else x)
+
+# Convert the "review" column to numeric type
+df['review'] = pd.to_numeric(df['review'], errors='coerce')
+
+# Sort DataFrame by the "review" column
+df.sort_values(by='review', ascending=False, inplace=True)
+
+
+    
