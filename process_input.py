@@ -12,11 +12,11 @@ import LLM_process
 def process_input():
     
     # Replace these variables with your actual database credentials
-    username = 'nebula3d'
-    password = 'Nl83AicydrdxEyZAdto0FGWPpK9Fcbhb'
-    host = 'dpg-clq85ehjvg7s73e4a97g-a.oregon-postgres.render.com'
-    port = '5432'
-    database = 'dev_xifl'
+    username=os.getenv('PYTHONPATH')
+    password=os.getenv('PYTHONPATH')
+    host=os.getenv('PYTHONPATH')
+    port=os.getenv('PYTHONPATH')
+    database=os.getenv('PYTHONPATH')
 
     # Create a SQLAlchemy engine
     engine = create_engine(f'postgresql://{username}:{password}@{host}:{port}/{database}')
