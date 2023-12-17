@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import pandas as pd
+import re
 
 def soup_request():
     # Defining the headers for HTTP requests
@@ -22,6 +23,26 @@ def soup_request():
     soup = BeautifulSoup(webpage.content, "html.parser")
 
     return soup, HEADERS
+
+# Function to extract get_asin
+def get_asin(soup):
+    """
+    Extracts the ASIN number from a webpage at the given URL.
+
+    Parameters:
+    url (str): The URL of the webpage to scrape.
+
+    Returns:
+    str: The extracted ASIN number, or None if not found.
+    """
+    script_tags = soup.find_all('script')
+    for script in script_tags:
+        if 'asin' in script.text:
+            asin_match = re.search(r'asin\s*:\s*"([A-Z0-9]{10})"', script.text)
+            if asin_match:
+                return asin_match.group(1)
+
+    return None
 
 # Function to extract Product Title
 def get_title(soup):
@@ -122,7 +143,7 @@ def get_color(soup):
 
 def get_data():
     #display
-    d = {"title": [], "brand":[], 
+    d = {"asin": [], "title": [], "brand":[], 
         "material": [], "review": [], 
         "price": [], "item weight":[], "color":[], "link":[]}
 
@@ -151,6 +172,7 @@ def get_data():
             new_soup = BeautifulSoup(new_webpage.content, "html.parser")
 
             # Function calls to display all necessary product information
+            d['asin'].append(get_asin(new_soup))
             d['title'].append(get_title(new_soup))
             d["review"].append(get_rating(new_soup))
             d["price"].append(get_price(new_soup))
@@ -164,21 +186,20 @@ def get_data():
         URL=soup.select_one('.s-pagination-item.s-pagination-next')['href']
         webpage = requests.get("https://www.amazon.in" + URL, headers=HEADERS)
         soup = BeautifulSoup(webpage.content, "html.parser")
-
-    df=pd.DataFrame(d)
-    return df.head()
-
-# Drop rows with null elements in the "title" column
-df = df.dropna(subset=['title'])
-
-# Keep only the first 3 digits in the "review" column
-df['review'] = df['review'].apply(lambda x: str(x)[:3] if pd.notnull(x) else x)
-
-# Convert the "review" column to numeric type
-df['review'] = pd.to_numeric(df['review'], errors='coerce')
-
-# Sort DataFrame by the "review" column
-df.sort_values(by='review', ascending=False, inplace=True)
-
-
     
+    df=pd.DataFrame(d)
+
+    # Drop rows with null elements in the "title" column
+    df = df.dropna(subset=['title'])
+
+    # Keep only the first 3 digits in the "review" column
+    df['review'] = df['review'].apply(lambda x: str(x)[:3] if pd.notnull(x) else x)
+
+    # Convert the "review" column to numeric type
+    df['review'] = pd.to_numeric(df['review'], errors='coerce')
+
+    # Sort DataFrame by the "review" column
+    df.sort_values(by='review', ascending=False, inplace=True)
+    return df
+
+
