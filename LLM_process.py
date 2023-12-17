@@ -1,11 +1,8 @@
 import os
 from openai import OpenAI
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
-def call_chatgpt(title: str, brand: str, material: str, item_weight: str,
+def call_chatgpt(title: str, brand: str, material: str, review: str, item_weight: str,
                  color: str, price: str, temperature: float = 0.7,
                  max_tokens: int = 150, model: str = "gpt-3.5-turbo"):
     """
@@ -28,10 +25,10 @@ def call_chatgpt(title: str, brand: str, material: str, item_weight: str,
     # Constructing the message for title generation
     title_message = (
         "Suggest an engaging blog post title related to the following "
-        "3D filament: title: {}; brand: {}; material:{}; item weight:{}; "
+        "3D filament: title: {}; brand: {}; material:{}; review:{}; item weight:{}; "
         "color:{}; price:{}. Please be direct in your response without "
         "first-person talk."
-    ).format(title, brand, material, item_weight, color, price)
+    ).format(title, brand, material, review, item_weight, color, price)
 
     system_message = (
         "You are a writer for a 3D printer filament blog, skilled in explaining, "
@@ -55,9 +52,9 @@ def call_chatgpt(title: str, brand: str, material: str, item_weight: str,
     # Constructing the message for content generation
     content_message = (
         "Now create an engaging blog post according to the title: {}, "
-        "and features such as name: {}; brand: {}; material:{}; item weight:{}; "
+        "and features such as name: {}; brand: {}; material:{}; review:{}; item weight:{}; "
         "color:{}; price:{}. Please be direct in your response without first-person talk, do not include the title on the text"
-    ).format(generated_title, title, brand, material, item_weight, color, price)
+    ).format(generated_title, title, brand, material, review, item_weight, color, price)
 
     response_content = client.chat.completions.create(
         model=model,

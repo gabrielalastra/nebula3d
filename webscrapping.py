@@ -4,19 +4,24 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import pandas as pd
-user_agents = user_agent=['Insert your 1 browser user agent','Insert your 2 browser user agent','...']
-# Defining the headers for HTTP requests
-HEADERS = {
-    'User-Agent': random.choice(user_agents),
-    'Accept-Language': 'en-US, en;q=0.5'
-}
 
-# Sending an HTTP request to the Amazon webpage
-URL = "https://www.amazon.in/s?k=3d+printer+filaments"
-webpage = requests.get(URL, headers=HEADERS)
+def soup_request():
+    # Defining the headers for HTTP requests
+    user_agents = user_agent=['Insert your 1 browser user agent','Insert your 2 browser user agent','...']
 
-# Creating a BeautifulSoup object to parse the HTML content
-soup = BeautifulSoup(webpage.content, "html.parser")
+    HEADERS = {
+        'User-Agent': random.choice(user_agents),
+        'Accept-Language': 'en-US, en;q=0.5'
+    }
+
+    # Sending an HTTP request to the Amazon webpage
+    URL = "https://www.amazon.in/s?k=3d+printer+filaments"
+    webpage = requests.get(URL, headers=HEADERS)
+
+    # Creating a BeautifulSoup object to parse the HTML content
+    soup = BeautifulSoup(webpage.content, "html.parser")
+
+    return soup, HEADERS
 
 # Function to extract Product Title
 def get_title(soup):
@@ -120,6 +125,8 @@ def get_data():
     d = {"title": [], "brand":[], 
         "material": [], "review": [], 
         "price": [], "item weight":[], "color":[], "link":[]}
+
+    soup, HEADERS = soup_request()
 
     for i in range(1):
             
